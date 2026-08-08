@@ -100,6 +100,16 @@
 
         #loginSection    { display: block; }
         #registerSection { display: none;  }
+
+        @media (max-width: 480px) {
+            .card {
+                width: 100%;
+                min-height: 100vh;
+                border-radius: 0;
+                padding: 40px 24px;
+            }
+        }
+        #registerSection { display: none;  }
     </style>
 </head>
 <body>
@@ -246,3 +256,4 @@
 
 </body>
 </html>
+<!-- media queries already added via sed -->

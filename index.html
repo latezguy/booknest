@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookNest</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a2e;
+            font-family: Arial, sans-serif;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            width: 420px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo h1 {
+            font-size: 2em;
+            color: #1a1a2e;
+            letter-spacing: 2px;
+        }
+
+        .logo p {
+            color: #888;
+            font-size: 0.85em;
+            margin-top: 4px;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95em;
+            color: #333;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        input:focus { border-color: #1a1a2e; }
+        input::placeholder { color: #aaa; }
+
+        .btn-main {
+            width: 100%;
+            padding: 13px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: opacity 0.2s;
+            margin-top: 4px;
+        }
+        .btn-main:hover { opacity: 0.85; }
+
+        .switch-row {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 0.88em;
+            color: #666;
+        }
+
+        .btn-switch {
+            background: none;
+            border: none;
+            color: #1a1a2e;
+            font-weight: bold;
+            font-size: 0.88em;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            margin-left: 4px;
+        }
+
+        #loginSection    { display: block; }
+        #registerSection { display: none;  }
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <div class="logo">
+        <h1>📚 BookNest</h1>
+        <p>Your personal digital library</p>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginSection">
+        <h2>Welcome Back</h2>
+
+        <input type="email"    id="loginEmail"    placeholder="Email address" />
+        <input type="password" id="loginPassword" placeholder="Password" />
+
+        <button class="btn-main" onclick="login()">Log In</button>
+
+        <div class="switch-row">
+            Don't have an account?
+            <button class="btn-switch" onclick="showRegister()">Sign Up</button>
+        </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerSection">
+        <h2>Create Account</h2>
+
+        <input type="text"     id="regName"     placeholder="Full name" />
+        <input type="email"    id="regEmail"    placeholder="Email address" />
+        <input type="password" id="regPassword" placeholder="Password" />
+        <input type="password" id="regConfirm"  placeholder="Confirm password" />
+
+        <button class="btn-main" onclick="register()">Sign Up</button>
+
+        <div class="switch-row">
+            Already have an account?
+            <button class="btn-switch" onclick="showLogin()">Log In</button>
+        </div>
+    </div>
+
+</div>
+
+<script type="module">
+    import { auth } from "./firebase.js";
+    import {
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        updateProfile
+    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+    // ── Switch between forms ──
+    window.showRegister = function() {
+        document.getElementById('loginSection').style.display    = 'none';
+        document.getElementById('registerSection').style.display = 'block';
+    };
+
+    window.showLogin = function() {
+        document.getElementById('registerSection').style.display = 'none';
+        document.getElementById('loginSection').style.display    = 'block';
+    };
+
+    // ── REGISTER ──
+    window.register = async function() {
+        let name     = document.getElementById('regName').value.trim();
+        let email    = document.getElementById('regEmail').value.trim();
+        let password = document.getElementById('regPassword').value;
+        let confirm  = document.getElementById('regConfirm').value;
+
+        // validations
+        if (name === '' || email === '' || password === '' || confirm === '') {
+            alert('Please fill in all fields!');
+            return;
+        }
+
+        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert('Please enter a valid email address!');
+            return;
+        }
+
+        if (password.length < 6) {
+            alert('Password must be at least 6 characters!');
+            return;
+        }
+
+        if (password !== confirm) {
+            alert('Passwords do not match!');
+            return;
+        }
+
+        try {
+            // create user with Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+            // save the user's name to their profile
+            await updateProfile(userCredential.user, { displayName: name });
+
+            alert('Account created successfully! Please log in.');
+            showLogin();
+
+        } catch (error) {
+            if (error.code === 'auth/email-already-in-use') {
+                alert('This email is already registered! Please log in.');
+            } else {
+                alert('Error: ' + error.message);
+            }
+        }
+    };
+
+    // ── LOGIN ──
+    window.login = async function() {
+        let email    = document.getElementById('loginEmail').value.trim();
+        let password = document.getElementById('loginPassword').value;
+
+        if (email === '' || password === '') {
+            alert('Please fill in all fields!');
+            return;
+        }
+
+        try {
+            // sign in with Firebase Auth
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            alert('Welcome back, ' + user.displayName + '!');
+
+            // go to dashboard
+            window.location.href = 'dashboard.html';
+
+        } catch (error) {
+            if (error.code === 'auth/user-not-found') {
+                alert('No account found with this email! Please sign up.');
+            } else if (error.code === 'auth/wrong-password') {
+                alert('Incorrect password! Please try again.');
+            } else {
+                alert('Error: ' + error.message);
+            }
+        }
+    };
+</script>
+
+</body>
+</html>

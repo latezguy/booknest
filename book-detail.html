@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookNest - Book Detail</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #f4f4f4;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: #1a1a2e;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+
+        .btn-back {
+            padding: 8px 18px;
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #aaa;
+            border-radius: 8px;
+            font-size: 0.85em;
+            cursor: pointer;
+        }
+        .btn-back:hover { color: white; border-color: white; }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px 60px;
+        }
+
+        /* Top section — cover + info side by side */
+        .top-section {
+            display: flex;
+            gap: 32px;
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .cover-wrap img {
+            width: 160px;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .book-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .book-info h1 {
+            font-size: 1.6em;
+            color: #1a1a2e;
+            line-height: 1.3;
+        }
+
+        .book-info .author {
+            font-size: 1em;
+            color: #666;
+        }
+
+        .tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.78em;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .tag-category { background: #f0f0f0; color: #555; }
+        .tag-reading   { background: #fff3cd; color: #856404; }
+        .tag-completed { background: #d4edda; color: #155724; }
+        .tag-wishlist  { background: #cce5ff; color: #004085; }
+        .tag-fav       { background: #fde8ec; color: #e94560; }
+
+        /* Star display */
+        .stars {
+            color: #f5a623;
+            font-size: 1.4em;
+            letter-spacing: 2px;
+        }
+        .stars span {
+            color: #ddd;
+        }
+
+        .description {
+            font-size: 0.9em;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        /* Action buttons */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+            flex-wrap: wrap;
+        }
+
+        .btn-edit {
+            padding: 9px 20px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-edit:hover { opacity: 0.85; }
+
+        .btn-fav {
+            padding: 9px 20px;
+            background: white;
+            color: #e94560;
+            border: 1.5px solid #e94560;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-fav:hover { background: #fde8ec; }
+
+        .btn-delete {
+            padding: 9px 20px;
+            background: white;
+            color: #e94560;
+            border: 1.5px solid #e94560;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-delete:hover { background: #e94560; color: white; }
+
+        /* Review section */
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 28px 32px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .section h2 {
+            font-size: 1.1em;
+            color: #1a1a2e;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .review-text {
+            font-size: 0.92em;
+            color: #555;
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        .no-review {
+            color: #bbb;
+            font-size: 0.9em;
+        }
+
+        /* Update status */
+        .status-select {
+            padding: 10px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #333;
+            outline: none;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .status-select:focus { border-color: #1a1a2e; }
+
+        .btn-update {
+            padding: 10px 20px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.88em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-update:hover { opacity: 0.85; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-logo" onclick="window.location.href='dashboard.html'">📚 BookNest</div>
+        <button class="btn-back" onclick="window.location.href='dashboard.html'">← Back to Library</button>
+    </nav>
+
+    <div class="container">
+
+        <!-- Top section -->
+        <div class="top-section">
+            <div class="cover-wrap">
+                <img id="bookCover" src="" alt="Book cover" />
+            </div>
+
+            <div class="book-info">
+                <h1 id="bookTitle"></h1>
+                <p class="author" id="bookAuthor"></p>
+
+                <div class="tags" id="bookTags"></div>
+
+                <div class="stars" id="bookStars"></div>
+
+                <p class="description" id="bookDescription"></p>
+
+                <div class="actions">
+                    <button class="btn-fav"    id="favBtn"    onclick="toggleFavourite()">❤️ Favourite</button>
+                    <button class="btn-delete"               onclick="deleteBook()">🗑 Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Update reading status -->
+        <div class="section">
+            <h2>Update Reading Status</h2>
+            <select class="status-select" id="statusSelect">
+                <option value="wishlist">Wishlist</option>
+                <option value="reading">Currently Reading</option>
+                <option value="completed">Completed</option>
+            </select>
+            <button class="btn-update" onclick="updateStatus()">Update</button>
+        </div>
+
+        <!-- Review section -->
+        <div class="section">
+            <h2>My Review</h2>
+            <p class="review-text" id="bookReview"></p>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        let book = null;
+
+        // ── Auth guard ──
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ── Load book from localStorage ──
+        const stored = localStorage.getItem('selectedBook');
+
+        if (!stored) {
+            alert('No book selected!');
+            window.location.href = 'dashboard.html';
+        } else {
+            book = JSON.parse(stored);
+            displayBook();
+        }
+
+        function displayBook() {
+            // cover
+            document.getElementById('bookCover').src = book.cover || 'https://via.placeholder.com/160x220?text=No+Cover';
+
+            // title and author
+            document.getElementById('bookTitle').innerHTML  = book.title;
+            document.getElementById('bookAuthor').innerHTML = 'by ' + book.author;
+
+            // tags
+            let tagsHTML = `<span class="tag tag-category">${book.category}</span>`;
+            tagsHTML    += `<span class="tag tag-${book.status}">${book.status}</span>`;
+            if (book.favourite) tagsHTML += `<span class="tag tag-fav">❤️ Favourite</span>`;
+            document.getElementById('bookTags').innerHTML = tagsHTML;
+
+            // stars
+            let starsHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= book.rating) {
+                    starsHTML += '★';
+                } else {
+                    starsHTML += '<span>★</span>';
+                }
+            }
+            document.getElementById('bookStars').innerHTML = starsHTML;
+
+            // description
+            document.getElementById('bookDescription').innerHTML = book.description || 'No description added.';
+
+            // review
+            document.getElementById('bookReview').innerHTML = book.review
+                ? '"' + book.review + '"'
+                : '<span class="no-review">No review written yet.</span>';
+
+            // favourite button
+            document.getElementById('favBtn').innerHTML = book.favourite
+                ? '❤️ Remove Favourite'
+                : '🤍 Add to Favourites';
+
+            // set status dropdown to current status
+            document.getElementById('statusSelect').value = book.status;
+        }
+
+        // ── Toggle Favourite ──
+        window.toggleFavourite = async function() {
+            let newFav = !book.favourite;
+
+            try {
+                await updateDoc(doc(db, "books", book.id), { favourite: newFav });
+
+                book.favourite = newFav;
+                localStorage.setItem('selectedBook', JSON.stringify(book));
+                displayBook();
+
+                alert(newFav ? 'Added to favourites!' : 'Removed from favourites!');
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+
+        // ── Update Reading Status ──
+        window.updateStatus = async function() {
+            let newStatus = document.getElementById('statusSelect').value;
+
+            try {
+                await updateDoc(doc(db, "books", book.id), { status: newStatus });
+
+                book.status = newStatus;
+                localStorage.setItem('selectedBook', JSON.stringify(book));
+                displayBook();
+
+                alert('Reading status updated to: ' + newStatus + '!');
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+
+        // ── Delete Book ──
+        window.deleteBook = async function() {
+            let confirm = window.confirm('Are you sure you want to delete "' + book.title + '"?');
+
+            if (!confirm) return;
+
+            try {
+                await deleteDoc(doc(db, "books", book.id));
+                localStorage.removeItem('selectedBook');
+                alert('Book deleted!');
+                window.location.href = 'dashboard.html';
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+
+    </script>
+
+</body>
+</html>

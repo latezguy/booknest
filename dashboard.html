@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookNest - Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #f4f4f4;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: #1a1a2e;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .welcome-text {
+            color: #aaa;
+            font-size: 0.9em;
+        }
+
+        .btn-logout {
+            padding: 8px 18px;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-logout:hover { opacity: 0.85; }
+
+        .topbar {
+            padding: 30px 40px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .topbar h2 { font-size: 1.4em; color: #1a1a2e; }
+
+        .topbar-right { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        #searchInput {
+            padding: 10px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9em;
+            outline: none;
+            width: 220px;
+        }
+        #searchInput:focus { border-color: #1a1a2e; }
+
+        .btn-add {
+            padding: 10px 20px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-add:hover { opacity: 0.85; }
+
+        .filters {
+            padding: 20px 40px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 7px 16px;
+            border: 1.5px solid #1a1a2e;
+            border-radius: 20px;
+            background: white;
+            color: #1a1a2e;
+            font-size: 0.82em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn.active, .filter-btn:hover {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        #booksGrid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 24px 40px 10px;
+            justify-content: flex-start;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 12px;
+            width: 200px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .book-card:hover { transform: translateY(-4px); }
+
+        .book-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .book-card .card-body {
+            padding: 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .book-card h3 { font-size: 0.88em; color: #1a1a2e; line-height: 1.4; }
+        .book-card .author { font-size: 0.78em; color: #888; }
+
+        .book-card .category-tag {
+            font-size: 0.72em;
+            background: #f0f0f0;
+            color: #555;
+            padding: 3px 8px;
+            border-radius: 10px;
+            width: fit-content;
+        }
+
+        .book-card .status {
+            font-size: 0.72em;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 10px;
+            width: fit-content;
+            margin-top: auto;
+        }
+        .status.reading   { background: #fff3cd; color: #856404; }
+        .status.completed { background: #d4edda; color: #155724; }
+        .status.wishlist  { background: #cce5ff; color: #004085; }
+
+        .fav-icon { font-size: 0.8em; color: #e94560; }
+
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #aaa;
+            width: 100%;
+        }
+        .empty h3 { font-size: 1.2em; margin-bottom: 8px; color: #888; }
+        .empty p  { font-size: 0.9em; }
+
+        #spinner {
+            text-align: center;
+            padding: 60px;
+            color: #888;
+            width: 100%;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px 40px 40px;
+        }
+
+        .btn-page {
+            padding: 9px 20px;
+            border: 1.5px solid #1a1a2e;
+            border-radius: 8px;
+            background: white;
+            color: #1a1a2e;
+            font-size: 0.88em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-page:hover:not(:disabled) { background: #1a1a2e; color: white; }
+        .btn-page:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .page-info { font-size: 0.88em; color: #888; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-logo">📚 BookNest</div>
+        <div class="nav-right">
+            <span class="welcome-text" id="welcomeText">Welcome!</span>
+            <button class="btn-logout" onclick="logout()">Log Out</button>
+        </div>
+    </nav>
+
+    <div class="topbar">
+        <h2>My Library</h2>
+        <div class="topbar-right">
+            <input type="text" id="searchInput" placeholder="Search books..." oninput="searchBooks()" />
+            <button class="btn-add" onclick="window.location.href='add-book.html'">+ Add Book</button>
+        </div>
+    </div>
+
+    <div class="filters">
+        <button class="filter-btn active" onclick="filterBooks('all', this)">All</button>
+        <button class="filter-btn" onclick="filterBooks('fiction', this)">Fiction</button>
+        <button class="filter-btn" onclick="filterBooks('non-fiction', this)">Non-Fiction</button>
+        <button class="filter-btn" onclick="filterBooks('science', this)">Science</button>
+        <button class="filter-btn" onclick="filterBooks('history', this)">History</button>
+        <button class="filter-btn" onclick="filterBooks('biography', this)">Biography</button>
+        <button class="filter-btn" onclick="filterBooks('favourite', this)">❤️ Favourites</button>
+    </div>
+
+    <div id="booksGrid">
+        <div id="spinner">Loading your books...</div>
+    </div>
+
+    <!-- Pagination controls -->
+    <div class="pagination" id="pagination" style="display:none;">
+        <button class="btn-page" id="prevBtn" onclick="changePage(-1)">← Prev</button>
+        <span class="page-info" id="pageInfo"></span>
+        <button class="btn-page" id="nextBtn" onclick="changePage(1)">Next →</button>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        let currentUser   = null;
+        let allBooks      = [];
+        let filteredBooks = [];
+        let currentPage   = 1;
+        const booksPerPage = 6;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('welcomeText').innerHTML = 'Welcome, ' + user.displayName + '!';
+                loadBooks();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function loadBooks() {
+            try {
+                const q = query(
+                    collection(db, "books"),
+                    where("userId", "==", currentUser.uid)
+                );
+
+                const querySnapshot = await getDocs(q);
+
+                allBooks = [];
+                querySnapshot.forEach((doc) => {
+                    allBooks.push({ id: doc.id, ...doc.data() });
+                });
+
+                filteredBooks = allBooks;
+                currentPage   = 1;
+                displayBooks();
+
+            } catch (error) {
+                console.log(error);
+                alert('Error loading books: ' + error.message);
+            }
+        }
+
+        function displayBooks() {
+            let grid    = document.getElementById('booksGrid');
+            let spinner = document.getElementById('spinner');
+            let pagination = document.getElementById('pagination');
+
+            if (spinner) spinner.remove();
+            grid.innerHTML = '';
+
+            if (filteredBooks.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty">
+                        <h3>No books found!</h3>
+                        <p>Try a different filter or add a new book.</p>
+                    </div>
+                `;
+                pagination.style.display = 'none';
+                return;
+            }
+
+            // work out which books to show on this page
+            let totalPages = Math.ceil(filteredBooks.length / booksPerPage);
+            let startIndex = (currentPage - 1) * booksPerPage;
+            let endIndex   = startIndex + booksPerPage;
+            let pageBooks  = filteredBooks.slice(startIndex, endIndex);
+
+            // render only the books for this page
+            pageBooks.forEach((book) => {
+                const card = document.createElement('div');
+                card.className = 'book-card';
+
+                card.innerHTML = `
+                    <img src="${book.cover || 'https://via.placeholder.com/200x180?text=No+Cover'}" alt="${book.title}" />
+                    <div class="card-body">
+                        <h3>${book.title}</h3>
+                        <p class="author">by ${book.author}</p>
+                        <span class="category-tag">${book.category}</span>
+                        <span class="status ${book.status}">${book.status}</span>
+                        ${book.favourite ? '<span class="fav-icon">❤️ Favourite</span>' : ''}
+                    </div>
+                `;
+
+                card.addEventListener('click', () => {
+                    localStorage.setItem('selectedBook', JSON.stringify(book));
+                    window.location.href = 'book-detail.html';
+                });
+
+                grid.appendChild(card);
+            });
+
+            // show pagination only if more than 6 books
+            if (filteredBooks.length > booksPerPage) {
+                pagination.style.display = 'flex';
+                document.getElementById('pageInfo').innerHTML = 'Page ' + currentPage + ' of ' + totalPages;
+                document.getElementById('prevBtn').disabled = currentPage === 1;
+                document.getElementById('nextBtn').disabled = currentPage === totalPages;
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+
+        // go to next or previous page
+        window.changePage = function(direction) {
+            currentPage = currentPage + direction;
+            displayBooks();
+            window.scrollTo(0, 0);
+        };
+
+        window.searchBooks = function() {
+            let searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            filteredBooks = allBooks.filter((book) => {
+                return book.title.toLowerCase().includes(searchQuery) ||
+                       book.author.toLowerCase().includes(searchQuery);
+            });
+            currentPage = 1;
+            displayBooks();
+        };
+
+        window.filterBooks = function(category, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('searchInput').value = '';
+
+            if (category === 'all') {
+                filteredBooks = allBooks;
+            } else if (category === 'favourite') {
+                filteredBooks = allBooks.filter(b => b.favourite === true);
+            } else {
+                filteredBooks = allBooks.filter(b => b.category === category);
+            }
+
+            currentPage = 1;
+            displayBooks();
+        };
+
+        window.logout = async function() {
+            await signOut(auth);
+            window.location.href = 'index.html';
+        };
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookNest - Add Book</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #f4f4f4;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: #1a1a2e;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+
+        .btn-back {
+            padding: 8px 18px;
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #aaa;
+            border-radius: 8px;
+            font-size: 0.85em;
+            cursor: pointer;
+        }
+        .btn-back:hover { color: white; border-color: white; }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+        }
+
+        .container h2 {
+            font-size: 1.4em;
+            color: #1a1a2e;
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85em;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 11px 14px;
+            margin-bottom: 18px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.92em;
+            color: #333;
+            outline: none;
+            font-family: Arial, sans-serif;
+            transition: border 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #1a1a2e;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        /* Cover image preview */
+        .cover-preview {
+            width: 120px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1.5px solid #ddd;
+            display: none;
+            margin-bottom: 18px;
+        }
+        .cover-preview.show { display: block; }
+
+        /* Two columns for some fields */
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Favourite checkbox row */
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-row label {
+            margin: 0;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        /* Star rating */
+        .rating-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .star {
+            font-size: 1.6em;
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.15s;
+        }
+        .star.selected { color: #f5a623; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: opacity 0.2s;
+        }
+        .btn-submit:hover { opacity: 0.85; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-logo" onclick="window.location.href='dashboard.html'">📚 BookNest</div>
+        <button class="btn-back" onclick="window.location.href='dashboard.html'">← Back to Library</button>
+    </nav>
+
+    <div class="container">
+        <h2>Add a New Book</h2>
+
+        <label>Book Title *</label>
+        <input type="text" id="title" placeholder="e.g. Atomic Habits" />
+
+        <label>Author *</label>
+        <input type="text" id="author" placeholder="e.g. James Clear" />
+
+        <label>Cover Image URL</label>
+        <input type="url" id="cover" placeholder="Paste an image URL..." oninput="previewCover()" />
+        <img id="coverPreview" class="cover-preview" alt="Cover preview" />
+
+        <div class="row">
+            <div>
+                <label>Category *</label>
+                <select id="category">
+                    <option value="">Select category</option>
+                    <option value="fiction">Fiction</option>
+                    <option value="non-fiction">Non-Fiction</option>
+                    <option value="science">Science</option>
+                    <option value="history">History</option>
+                    <option value="biography">Biography</option>
+                    <option value="self-help">Self Help</option>
+                    <option value="technology">Technology</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label>Reading Status *</label>
+                <select id="status">
+                    <option value="">Select status</option>
+                    <option value="wishlist">Wishlist</option>
+                    <option value="reading">Currently Reading</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+        </div>
+
+        <label>Description</label>
+        <textarea id="description" placeholder="Write a short description of the book..."></textarea>
+
+        <label>Your Rating</label>
+        <div class="rating-row" id="ratingRow">
+            <span class="star" onclick="setRating(1)">★</span>
+            <span class="star" onclick="setRating(2)">★</span>
+            <span class="star" onclick="setRating(3)">★</span>
+            <span class="star" onclick="setRating(4)">★</span>
+            <span class="star" onclick="setRating(5)">★</span>
+        </div>
+
+        <label>Your Review</label>
+        <textarea id="review" placeholder="Write your thoughts about this book..."></textarea>
+
+        <div class="checkbox-row">
+            <input type="checkbox" id="favourite" />
+            <label for="favourite">❤️ Add to Favourites</label>
+        </div>
+
+        <button class="btn-submit" onclick="addBook()">Add Book</button>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        let currentUser = null;
+        let selectedRating = 0;
+
+        // ── Auth guard ──
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ── Cover image preview ──
+        window.previewCover = function() {
+            let url     = document.getElementById('cover').value;
+            let preview = document.getElementById('coverPreview');
+            if (url !== '') {
+                preview.src = url;
+                preview.classList.add('show');
+            } else {
+                preview.classList.remove('show');
+            }
+        };
+
+        // ── Star rating ──
+        window.setRating = function(rating) {
+            selectedRating = rating;
+            let stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('selected');
+                } else {
+                    star.classList.remove('selected');
+                }
+            });
+        };
+
+        // ── Add Book to Firestore ──
+        window.addBook = async function() {
+            let title       = document.getElementById('title').value.trim();
+            let author      = document.getElementById('author').value.trim();
+            let cover       = document.getElementById('cover').value.trim();
+            let category    = document.getElementById('category').value;
+            let status      = document.getElementById('status').value;
+            let description = document.getElementById('description').value.trim();
+            let review      = document.getElementById('review').value.trim();
+            let favourite   = document.getElementById('favourite').checked;
+
+            // validations
+            if (title === '') {
+                alert('Please enter the book title!');
+                return;
+            }
+            if (author === '') {
+                alert('Please enter the author name!');
+                return;
+            }
+            if (category === '') {
+                alert('Please select a category!');
+                return;
+            }
+            if (status === '') {
+                alert('Please select a reading status!');
+                return;
+            }
+
+            try {
+                // save book to Firestore
+                await addDoc(collection(db, "books"), {
+                    title:       title,
+                    author:      author,
+                    cover:       cover,
+                    category:    category,
+                    status:      status,
+                    description: description,
+                    rating:      selectedRating,
+                    review:      review,
+                    favourite:   favourite,
+                    userId:      currentUser.uid,
+                    createdAt:   serverTimestamp()
+                });
+
+                alert('Book added successfully!');
+                window.location.href = 'dashboard.html';
+
+            } catch (error) {
+                console.log(error);
+                alert('Error adding book: ' + error.message);
+            }
+        };
+
+    </script>
+
+</body>
+</html>
